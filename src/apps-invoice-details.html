@@ -1,0 +1,208 @@
+@@include('./partials/html.html')
+
+<head>
+    @@include("./partials/title-meta.html", {"title": "Invoice Detail"})
+
+    @@include('./partials/head-css.html')
+</head>
+
+<body>
+    <!-- Begin page -->
+    <div class="wrapper">
+
+        @@include('./partials/menu.html', {"title":"View Invoice"})
+
+        <!-- ============================================================== -->
+        <!-- Start Page Content here -->
+        <!-- ============================================================== -->
+
+        <div class="page-content">
+            <div class="page-container">
+
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card" id="invoice-card">
+                            <div class="card-body">
+                                <!-- Invoice Header -->
+                                <div class="d-flex align-items-start justify-content-between mb-4">
+                                    <div>
+                                        <h3 class="fw-bold text-dark">ServiceFlowPro</h3>
+                                    </div>
+                                    <div class="text-end">
+                                        <span id="statusBadge" class="badge bg-success-subtle text-success px-1 fs-12 mb-3">Paid</span>
+                                        <h3 class="m-0 fw-bolder fs-20" id="invoiceNumber">Invoice: #INV0000</h3>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-4">
+                                        <div class="mb-4">
+                                            <h5 class="fw-bold fs-14">From:</h5>
+                                            <h6 class="fs-14" id="fromName">Loading...</h6>
+                                            <p class="fs-14 text-muted mb-0" id="fromAddress">Address loading...</p>
+                                            <p class="fs-14 text-muted mb-0" id="fromPhone">Phone loading...</p>
+                                        </div>
+                                        <div>
+                                            <h5 class="fw-bold fs-14">Invoice Date:</h5>
+                                            <p class="fs-14 text-muted mb-0" id="invoiceDate">-</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-4">
+                                        <div class="mb-4">
+                                            <h5 class="fw-bold fs-14">Bill To:</h5>
+                                            <h6 class="fs-14" id="toName">Loading...</h6>
+                                            <p class="fs-14 text-muted mb-0" id="toAddress">Address loading...</p>
+                                            <p class="fs-14 text-muted mb-0" id="toPhone">Phone loading...</p>
+                                        </div>
+                                        <div>
+                                            <h5 class="fw-bold fs-14">Due Date:</h5>
+                                            <p class="fs-14 text-muted mb-0" id="dueDate">-</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-4 text-end">
+                                        <img src="assets/images/png/qr-code.png" alt="qr-code-image" height="100">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mt-4">
+                                <div class="table-responsive">
+                                    <table class="table text-center table-nowrap align-middle mb-0">
+                                        <thead>
+                                            <tr class="bg-light bg-opacity-50">
+                                                <th scope="col" style="width: 50px;">#</th>
+                                                <th class="text-start" scope="col">Product Details</th>
+                                                <th scope="col">Quantity</th>
+                                                <th scope="col">Unit Price</th>
+                                                <th class="text-end" scope="col">Amount</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="products-list">
+                                            <tr><td colspan="5">Loading...</td></tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div>
+                                    <table class="table table-nowrap align-middle mb-0 ms-auto" style="width:335px">
+                                        <tbody>
+                                            <tr>
+                                                <td class="fw-medium">Subtotal</td>
+                                                <td class="text-end" id="subtotal">$0.00</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-medium">Shipping</td>
+                                                <td class="text-end" id="shipping">$0.00</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-medium">Discount</td>
+                                                <td class="text-end" id="discount">$0.00</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-medium">Tax</td>
+                                                <td class="text-end" id="tax">$0.00</td>
+                                            </tr>
+                                            <tr class="border-top border-top-dashed fs-16">
+                                                <td class="fw-bold">Total</td>
+                                                <td class="fw-bold text-end" id="totalAmount">$0.00</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <div class="card-body">
+                                <div class="bg-body p-2 rounded-2 mt-4">
+                                    <p class="mb-0"><span class="fs-12 fw-bold text-uppercase">Note:</span> Please pay the due amount within the due date to avoid service interruption.</p>
+                                </div>
+
+                                <div class="mt-4">
+                                    <p class="mb-2 pb-2"><b>Thank you for choosing ServiceFlowPro!</b></p>
+                                    <div class="d-inline-block">
+                                        <img src="assets/images/png/signature.png" alt="signature" height="32">
+                                        <h5 class="mb-0 mt-2">Authorized Sign</h5>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-print-none mb-5">
+                            <div class="d-flex justify-content-center gap-2">
+                                <a href="javascript:window.print()" class="btn btn-primary"><i class="ti ti-printer me-1"></i> Print</a>
+                                <a href="javascript:void(0);" class="btn btn-secondary"><i class="ti ti-send me-1"></i> Send</a>
+                                <a href="javascript:void(0);" class="btn btn-info"><i class="ti ti-download me-1"></i> Download</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            @@include('./partials/footer.html')
+
+        </div>
+
+        <!-- ============================================================== -->
+        <!-- End Page content -->
+        <!-- ============================================================== -->
+
+    </div>
+    <!-- END wrapper -->
+
+    @@include('./partials/customizer.html')
+    @@include('./partials/footer-scripts.html')
+
+    <!-- Supabase Invoice Load Script -->
+    <script type="module">
+        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+
+        const supabaseUrl = 'https://jalzezkphjcnfgbthiix.supabase.co'
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImphbHplemtwaGpjbmZnYnRoaWl4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDY5NjI3ODksImV4cCI6MjA2MjUzODc4OX0.rhIK6dkrfzWao53ekXzXTybUBkgRvsSla5r4r6pa948'
+        const supabase = createClient(supabaseUrl, supabaseKey)
+
+        const invoiceId = new URLSearchParams(window.location.search).get('id')
+
+        async function loadInvoice() {
+            const { data: invoice, error } = await supabase
+                .from('invoices')
+                .select('*, client:clients(full_name, address, phone), items:invoice_items(*)')
+                .eq('id', invoiceId)
+                .single()
+
+            if (error) {
+                alert('Failed to load invoice')
+                return
+            }
+
+            document.getElementById('invoiceNumber').textContent = `Invoice: #${invoice.invoice_no}`
+            document.getElementById('invoiceDate').textContent = invoice.invoice_date
+            document.getElementById('dueDate').textContent = invoice.due_date
+            document.getElementById('statusBadge').textContent = invoice.status
+            document.getElementById('toName').textContent = invoice.client.full_name
+            document.getElementById('toAddress').textContent = invoice.client.address
+            document.getElementById('toPhone').textContent = invoice.client.phone
+
+            const productRows = invoice.items.map((item, idx) => `
+                <tr>
+                    <th>${idx + 1}</th>
+                    <td class="text-start">${item.product_name} <br><small class="text-muted">${item.description || ''}</small></td>
+                    <td>${item.quantity}</td>
+                    <td>$${item.unit_price.toFixed(2)}</td>
+                    <td class="text-end">$${(item.unit_price * item.quantity).toFixed(2)}</td>
+                </tr>
+            `).join('')
+
+            document.getElementById('products-list').innerHTML = productRows
+            document.getElementById('subtotal').textContent = `$${invoice.subtotal.toFixed(2)}`
+            document.getElementById('shipping').textContent = `$${invoice.shipping.toFixed(2)}`
+            document.getElementById('discount').textContent = `$${invoice.discount.toFixed(2)}`
+            document.getElementById('tax').textContent = `$${invoice.tax.toFixed(2)}`
+            document.getElementById('totalAmount').textContent = `$${invoice.total.toFixed(2)}`
+        }
+
+        loadInvoice()
+    </script>
+
+</body>
+</html>

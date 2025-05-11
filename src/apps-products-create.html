@@ -1,0 +1,116 @@
+@@include('./partials/html.html')
+
+<head>
+  @@include("./partials/title-meta.html", {"title": "Create Product"})
+  <link href="assets/vendor/flatpickr/flatpickr.min.css" rel="stylesheet" />
+  @@include('./partials/head-css.html')
+</head>
+
+<body>
+  <div class="wrapper">
+    @@include('./partials/menu.html', {"title":"Create Product"})
+
+    <div class="page-content">
+      <div class="page-container">
+        <div class="row">
+          <div class="col-12">
+            <div class="card">
+              <form id="productForm">
+                <div class="card-body">
+                  <h4 class="mb-4 fw-bold" id="formTitle">Create Product</h4>
+                  <div class="row g-4">
+                    <div class="col-md-6">
+                      <label for="name" class="form-label">Product Name</label>
+                      <input type="text" id="name" class="form-control" required />
+                    </div>
+                    <div class="col-md-6">
+                      <label for="category" class="form-label">Category</label>
+                      <input type="text" id="category" class="form-control" required />
+                    </div>
+                    <div class="col-md-6">
+                      <label for="price" class="form-label">Price</label>
+                      <input type="number" id="price" class="form-control" required />
+                    </div>
+                    <div class="col-md-6">
+                      <label for="stock" class="form-label">Stock</label>
+                      <input type="number" id="stock" class="form-control" required />
+                    </div>
+                    <div class="col-md-12">
+                      <label for="description" class="form-label">Description</label>
+                      <textarea id="description" class="form-control" rows="3"></textarea>
+                    </div>
+                  </div>
+                  <div class="text-center mt-4 mb-2">
+                    <button type="submit" class="btn btn-success">
+                      <i class="ti ti-device-floppy"></i> Save Product
+                    </button>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+      @@include('./partials/footer.html')
+    </div>
+  </div>
+
+  @@include('./partials/customizer.html')
+  @@include('./partials/footer-scripts.html')
+
+  <script type="module">
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+
+    const supabase = createClient(
+      'https://ghotxbtkrqahwirfqudf.supabase.co',
+      'YOUR_SUPABASE_ANON_KEY'
+    );
+
+    const params = new URLSearchParams(window.location.search);
+    const editId = params.get("edit");
+
+    if (editId) {
+      document.getElementById("formTitle").textContent = "Edit Product";
+      loadProduct(editId);
+    }
+
+    async function loadProduct(id) {
+      const { data, error } = await supabase.from("products").select("*").eq("id", id).single();
+      if (error || !data) return alert("Failed to load product.");
+
+      document.getElementById("name").value = data.name || "";
+      document.getElementById("category").value = data.category || "";
+      document.getElementById("price").value = data.price || 0;
+      document.getElementById("stock").value = data.stock || 0;
+      document.getElementById("description").value = data.description || "";
+    }
+
+    document.getElementById("productForm").addEventListener("submit", async function (e) {
+      e.preventDefault();
+
+      const form = {
+        name: document.getElementById("name").value.trim(),
+        category: document.getElementById("category").value.trim(),
+        price: parseFloat(document.getElementById("price").value || 0),
+        stock: parseInt(document.getElementById("stock").value || 0),
+        description: document.getElementById("description").value.trim(),
+        created_at: new Date().toISOString()
+      };
+
+      let result;
+      if (editId) {
+        result = await supabase.from("products").update(form).eq("id", editId);
+      } else {
+        result = await supabase.from("products").insert([form]);
+      }
+
+      if (result.error) {
+        alert("Error saving product: " + result.error.message);
+      } else {
+        alert("Product saved successfully!");
+        window.location.href = "products.html";
+      }
+    });
+  </script>
+</body>
+</html>

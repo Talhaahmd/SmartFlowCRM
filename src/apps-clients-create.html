@@ -1,0 +1,125 @@
+@@include('./partials/html.html')
+
+<head>
+  @@include("./partials/title-meta.html", {"title": "Create Client"})
+  @@include('./partials/head-css.html')
+</head>
+
+<body>
+  <div class="wrapper">
+    @@include('./partials/menu.html', {"title":"Create Client"})
+
+    <div class="page-content">
+      <div class="page-container">
+        <div class="row">
+          <div class="col-12">
+            <div class="card">
+              <form id="clientForm">
+                <div class="card-body">
+                  <h4 class="mb-4 fw-bold" id="formTitle">Create Client</h4>
+                  <div class="row g-4">
+                    <div class="col-md-6">
+                      <label for="full_name" class="form-label">Full Name</label>
+                      <input type="text" id="full_name" class="form-control" placeholder="Enter full name" required />
+                    </div>
+                    <div class="col-md-6">
+                      <label for="email" class="form-label">Email</label>
+                      <input type="email" id="email" class="form-control" placeholder="Enter email" />
+                    </div>
+                    <div class="col-md-6">
+                      <label for="phone" class="form-label">Phone</label>
+                      <input type="text" id="phone" class="form-control" placeholder="+92 300 0000000" />
+                    </div>
+                    <div class="col-md-6">
+                      <label for="client_type" class="form-label">Client Type</label>
+                      <select id="client_type" class="form-select" required>
+                        <option value="">Select type</option>
+                        <option value="Residential">Residential</option>
+                        <option value="Commercial">Commercial</option>
+                      </select>
+                    </div>
+                    <div class="col-md-12">
+                      <label for="address" class="form-label">Address</label>
+                      <textarea id="address" class="form-control" rows="2" placeholder="Enter address"></textarea>
+                    </div>
+                  </div>
+                  <div class="text-center mt-4 mb-2">
+                    <button type="submit" class="btn btn-success">
+                      <i class="ti ti-device-floppy"></i> Save Client
+                    </button>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      @@include('./partials/footer.html')
+    </div>
+  </div>
+
+  @@include('./partials/customizer.html')
+  @@include('./partials/footer-scripts.html')
+
+  <script type="module">
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+
+    const supabase = createClient(
+      'https://ghotxbtkrqahwirfqudf.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdob3R4YnRrcnFhaHdpcmZxdWRmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDY5Njg0NDIsImV4cCI6MjA2MjU0NDQ0Mn0.k8hNsW5unHVBozk5nF29pMPz9XfHHDC0RN3-92dk5iA'
+    );
+
+    const params = new URLSearchParams(window.location.search);
+    const editId = params.get("edit");
+
+    if (editId) {
+      document.getElementById("formTitle").textContent = "Edit Client";
+      loadClient(editId);
+    }
+
+    document.getElementById("clientForm").addEventListener("submit", async function (e) {
+      e.preventDefault();
+
+      const form = {
+        full_name: document.getElementById("full_name").value.trim(),
+        email: document.getElementById("email").value.trim(),
+        phone: document.getElementById("phone").value.trim(),
+        address: document.getElementById("address").value.trim(),
+        client_type: document.getElementById("client_type").value
+      };
+
+      console.log("🟢 Submitting form:", form);
+
+      let result;
+      if (editId) {
+        result = await supabase.from("clients").update(form).eq("id", editId);
+      } else {
+        result = await supabase.from("clients").insert([form]);
+      }
+
+      if (result.error) {
+        alert("❌ Error saving client: " + result.error.message);
+        console.error(result.error);
+      } else {
+        alert("✅ Client saved successfully!");
+        window.location.href = "apps-clients.html";
+      }
+    });
+
+    async function loadClient(id) {
+      const { data, error } = await supabase.from("clients").select("*").eq("id", id).single();
+      if (error || !data) {
+        alert("❌ Failed to load client");
+        return;
+      }
+
+      document.getElementById("full_name").value = data.full_name || '';
+      document.getElementById("email").value = data.email || '';
+      document.getElementById("phone").value = data.phone || '';
+      document.getElementById("address").value = data.address || '';
+      document.getElementById("client_type").value = data.client_type || '';
+    }
+  </script>
+</body>
+</html>

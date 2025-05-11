@@ -1,0 +1,126 @@
+@@include('./partials/html.html')
+
+<head>
+  @@include("./partials/title-meta.html", {"title": "Create Invoice"})
+  <link href="assets/vendor/flatpickr/flatpickr.min.css" rel="stylesheet" />
+  @@include('./partials/head-css.html')
+</head>
+
+<body>
+<div class="wrapper">
+  @@include('./partials/menu.html', {"title":"Create Invoice"})
+
+  <div class="page-content">
+    <div class="page-container">
+      <div class="row">
+        <div class="col-12">
+          <div class="card">
+            <form id="invoiceForm">
+              <div class="card-body">
+                <h4 class="mb-4 fw-bold">Create Invoice</h4>
+                <div class="row g-4">
+                  <div class="col-md-6">
+                    <label for="invoice_date" class="form-label">Invoice Date</label>
+                    <input type="text" id="invoice_date" class="form-control flatpickr" data-provider="flatpickr" data-date-format="d M, Y" placeholder="Select Date">
+                  </div>
+                  <div class="col-md-6">
+                    <label for="due_date" class="form-label">Due Date</label>
+                    <input type="text" id="due_date" class="form-control flatpickr" placeholder="Select Due Date">
+                  </div>
+                  <div class="col-md-6">
+                    <label for="client_name" class="form-label">Client Name</label>
+                    <select id="client_name" class="form-select">
+                      <option disabled selected>Loading clients...</option>
+                    </select>
+                  </div>
+                  <div class="col-md-6">
+                    <label for="visit_charges" class="form-label">Visit Charges</label>
+                    <input type="number" id="visit_charges" class="form-control" placeholder="$0.00">
+                  </div>
+                  <div class="col-md-6">
+                    <label for="client_address" class="form-label">Client Address</label>
+                    <textarea id="client_address" class="form-control" rows="2" placeholder="Enter address"></textarea>
+                  </div>
+                  <div class="col-md-6">
+                    <label for="client_phone" class="form-label">Client Phone</label>
+                    <input type="text" id="client_phone" class="form-control" placeholder="+92 300 0000000">
+                  </div>
+                  <div class="col-md-6">
+                    <label for="payment_method" class="form-label">Payment Method</label>
+                    <select id="payment_method" class="form-select">
+                      <option value="Cash">Cash</option>
+                      <option value="Card">Card</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </form>
+          </div>
+
+          <div class="text-center mt-4 mb-5">
+            <button class="btn btn-success" onclick="submitInvoice()">
+              <i class="ti ti-device-floppy"></i> Save Invoice
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    @@include('./partials/footer.html')
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script type="module">
+  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+
+  const supabase = createClient(
+    'https://ghotxbtkrqahwirfqudf.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdob3R4YnRrcnFhaHdpcmZxdWRmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDY5Njg0NDIsImV4cCI6MjA2MjU0NDQ0Mn0.k8hNsW5unHVBozk5nF29pMPz9XfHHDC0RN3-92dk5iA'
+  );
+
+  async function loadClients() {
+    const { data, error } = await supabase.from('clients').select('full_name');
+    const select = document.getElementById('client_name');
+    select.innerHTML = '<option disabled selected>Select Client</option>';
+
+    if (data?.length) {
+      data.forEach(client => {
+        const opt = document.createElement('option');
+        opt.value = client.full_name;
+        opt.textContent = client.full_name;
+        select.appendChild(opt);
+      });
+    } else {
+      select.innerHTML = '<option disabled selected>No clients found</option>';
+    }
+  }
+
+  async function submitInvoice() {
+    const form = {
+      invoice_date: document.getElementById('invoice_date').value,
+      due_date: document.getElementById('due_date').value,
+      client_name: document.getElementById('client_name').value,
+      visit_charges: parseFloat(document.getElementById('visit_charges').value || 0),
+      client_address: document.getElementById('client_address').value,
+      client_phone: document.getElementById('client_phone').value,
+      payment_method: document.getElementById('payment_method').value
+    };
+
+    const { error } = await supabase.from('invoices').insert([form]);
+    if (error) {
+      alert('Error saving invoice: ' + error.message);
+    } else {
+      alert('Invoice saved successfully!');
+      location.reload();
+    }
+  }
+
+  loadClients();
+</script>
+
+@@include('./partials/customizer.html')
+@@include('./partials/footer-scripts.html')
+
+</body>
+</html>

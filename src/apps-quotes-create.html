@@ -1,0 +1,146 @@
+@@include('./partials/html.html')
+
+<head>
+  @@include("./partials/title-meta.html", {"title": "Create Quote"})
+  <link href="assets/vendor/flatpickr/flatpickr.min.css" rel="stylesheet" />
+  @@include('./partials/head-css.html')
+</head>
+
+<body>
+<div class="wrapper">
+  @@include('./partials/menu.html', {"title":"Create Quote"})
+
+  <div class="page-content">
+    <div class="page-container">
+      <div class="row">
+        <div class="col-12">
+          <div class="card">
+            <form id="quoteForm">
+              <div class="card-body">
+                <h4 class="mb-4 fw-bold" id="formTitle">Create Quote</h4>
+                <div class="row g-4">
+                  <div class="col-md-6">
+                    <label for="quote_title" class="form-label">Quote Title</label>
+                    <input type="text" id="quote_title" class="form-control" placeholder="Enter title" required />
+                  </div>
+                  <div class="col-md-6">
+                    <label for="client_name" class="form-label">Client Name</label>
+                    <select id="client_name" class="form-select" required>
+                      <option disabled selected>Select Client</option>
+                    </select>
+                  </div>
+                  <div class="col-md-6">
+                    <label for="amount" class="form-label">Amount</label>
+                    <input type="number" id="amount" class="form-control" placeholder="$0.00" required />
+                  </div>
+                  <div class="col-md-6">
+                    <label for="status" class="form-label">Status</label>
+                    <select id="status" class="form-select" required>
+                      <option value="Pending">Pending</option>
+                      <option value="Approved">Approved</option>
+                      <option value="Rejected">Rejected</option>
+                    </select>
+                  </div>
+                  <div class="col-md-12">
+                    <label for="description" class="form-label">Description</label>
+                    <textarea id="description" class="form-control" rows="3" placeholder="Quote description..." required></textarea>
+                  </div>
+                  <div class="col-md-12">
+                    <label for="quote_image" class="form-label">Upload Image</label>
+                    <input type="file" id="quote_image" class="form-control" accept="image/*" />
+                  </div>
+                </div>
+
+                <div class="text-center mt-4 mb-2">
+                  <button type="submit" class="btn btn-success">
+                    <i class="ti ti-device-floppy"></i> Save Quote
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    @@include('./partials/footer.html')
+  </div>
+</div>
+
+<script type="module">
+  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+
+  const supabase = createClient(
+    'https://ghotxbtkrqahwirfqudf.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdob3R4YnRrcnFhaHdpcmZxdWRmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDY5Njg0NDIsImV4cCI6MjA2MjU0NDQ0Mn0.k8hNsW5unHVBozk5nF29pMPz9XfHHDC0RN3-92dk5iA'
+  );
+
+  document.getElementById("quoteForm").addEventListener("submit", async function (e) {
+    e.preventDefault();
+
+    const quote_title = document.getElementById('quote_title').value.trim();
+    const client_name = document.getElementById('client_name').value;
+    const amount = parseFloat(document.getElementById('amount').value || 0);
+    const status = document.getElementById('status').value;
+    const description = document.getElementById('description').value.trim();
+    const imageFile = document.getElementById('quote_image').files[0];
+
+    let image_url = null;
+    if (imageFile) {
+      const fileExt = imageFile.name.split('.').pop();
+      const filePath = `quotes/${crypto.randomUUID()}.${fileExt}`;
+      const { error: uploadError } = await supabase.storage.from('quote-images').upload(filePath, imageFile);
+
+      if (uploadError) {
+        alert("Image upload failed: " + uploadError.message);
+        return;
+      }
+
+      const { data } = supabase.storage.from('quote-images').getPublicUrl(filePath);
+      image_url = data.publicUrl;
+    }
+
+    const form = {
+      quote_title,
+      client_name,
+      amount,
+      status,
+      description,
+      image_url,
+      created_at: new Date().toISOString()
+    };
+
+    const { error } = await supabase.from('quotes').insert([form]);
+    if (error) {
+      alert("❌ Error saving quote: " + error.message);
+      console.error(error);
+    } else {
+      alert("✅ Quote saved successfully!");
+      window.location.href = "apps-quotes.html";
+    }
+  });
+
+  async function loadClients() {
+    const { data, error } = await supabase.from('clients').select('full_name');
+    const select = document.getElementById('client_name');
+    select.innerHTML = '<option disabled selected>Select Client</option>';
+    if (error) {
+      console.error("❌ Failed to load clients", error);
+      return;
+    }
+    data.forEach(client => {
+      const opt = document.createElement('option');
+      opt.value = client.full_name;
+      opt.textContent = client.full_name;
+      select.appendChild(opt);
+    });
+  }
+
+  loadClients();
+</script>
+
+@@include('./partials/customizer.html')
+@@include('./partials/footer-scripts.html')
+
+</body>
+</html>

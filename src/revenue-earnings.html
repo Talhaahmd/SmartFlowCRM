@@ -1,0 +1,255 @@
+@@include('./partials/html.html')
+
+<head>
+  @@include("./partials/title-meta.html", {"title": "Revenue & Earnings"})
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  @@include('./partials/head-css.html')
+</head>
+
+<body>
+  <div class="wrapper">
+    @@include('./partials/menu.html', {"title":"Revenue & Earnings"})
+
+    <div class="page-content">
+      <div class="page-container">
+        <h2 class="mb-4 fw-bold">Earnings & Revenue</h2>
+
+        <ul class="nav nav-tabs" id="earningsTabs" role="tablist">
+          <li class="nav-item">
+            <button class="nav-link active" id="technician-tab" data-bs-toggle="tab" data-bs-target="#technician" type="button" role="tab">Technician Earnings</button>
+          </li>
+          <li class="nav-item">
+            <button class="nav-link" id="admin-tab" data-bs-toggle="tab" data-bs-target="#admin" type="button" role="tab">Revenue Overview</button>
+          </li>
+        </ul>
+
+        <div class="tab-content pt-4" id="earningsTabsContent">
+          <!-- Technician Earnings -->
+          <div class="tab-pane fade show active" id="technician" role="tabpanel">
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label class="form-label">Select Technician</label>
+                <select class="form-select" id="technicianSelect"></select>
+              </div>
+            </div>
+
+            <div class="row g-4 mb-4">
+              <div class="col-md-4">
+                <div class="card text-center">
+                  <div class="card-body">
+                    <h5>Total Earnings</h5>
+                    <h3 id="totalEarnings">$0</h3>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="card text-center">
+                  <div class="card-body">
+                    <h5>Jobs Completed</h5>
+                    <h3 id="jobsCompleted">0</h3>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="card text-center">
+                  <div class="card-body">
+                    <h5>Activity Logs</h5>
+                    <h3 id="activityLogs">0</h3>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card mb-4">
+              <div class="card-header">Earnings Chart</div>
+              <div class="card-body"><canvas id="earningsChart" height="100"></canvas></div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">Recent Activity</div>
+              <ul class="list-group list-group-flush" id="activityList"></ul>
+            </div>
+          </div>
+
+          <!-- Admin Revenue -->
+          <div class="tab-pane fade" id="admin" role="tabpanel">
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label class="form-label">Select Company</label>
+                <select class="form-select" id="companySelect">
+                  <option value="all">All Companies</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="row g-4 mb-4">
+              <div class="col-md-6">
+                <div class="card text-center">
+                  <div class="card-body">
+                    <h5>Total Platform Revenue</h5>
+                    <h3 id="platformRevenue">$0</h3>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="card text-center">
+                  <div class="card-body">
+                    <h5>Total Company Revenue</h5>
+                    <h3 id="companyRevenue">$0</h3>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="row g-4 mb-4">
+              <div class="col-md-6">
+                <div class="card">
+                  <div class="card-header">Monthly Revenue</div>
+                  <div class="card-body"><canvas id="monthlyRevenueChart" height="100"></canvas></div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="card">
+                  <div class="card-header">Revenue Distribution</div>
+                  <div class="card-body"><canvas id="revenuePieChart" height="100"></canvas></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">Company Revenue Table</div>
+              <div class="card-body">
+                <table class="table table-bordered mb-0">
+                  <thead><tr><th>Company</th><th>Month</th><th>Revenue</th></tr></thead>
+                  <tbody id="revenueTable"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        @@include('./partials/footer.html')
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <script type="module">
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+    const supabase = createClient(
+      'https://ghotxbtkrqahwirfqudf.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdob3R4YnRrcnFhaHdpcmZxdWRmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDY5Njg0NDIsImV4cCI6MjA2MjU0NDQ0Mn0.k8hNsW5unHVBozk5nF29pMPz9XfHHDC0RN3-92dk5iA'
+    );
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      const technicianSelect = document.getElementById('technicianSelect');
+      const companySelect = document.getElementById('companySelect');
+      const totalEarnings = document.getElementById('totalEarnings');
+      const jobsCompleted = document.getElementById('jobsCompleted');
+      const activityLogs = document.getElementById('activityLogs');
+      const activityList = document.getElementById('activityList');
+      const earningsChart = new Chart(document.getElementById('earningsChart').getContext('2d'), { type: 'bar', data: {}, options: {} });
+      const monthlyRevenueChart = new Chart(document.getElementById('monthlyRevenueChart').getContext('2d'), { type: 'bar', data: {}, options: {} });
+      const revenuePieChart = new Chart(document.getElementById('revenuePieChart').getContext('2d'), { type: 'pie', data: {}, options: {} });
+
+      const loadTechnicians = async () => {
+        const { data } = await supabase.from('users').select('id, full_name').eq('role', 'technician');
+        data.forEach(tech => {
+          const option = document.createElement('option');
+          option.value = tech.id;
+          option.textContent = tech.full_name;
+          technicianSelect.appendChild(option);
+        });
+        if (data.length) loadTechnicianData(data[0].id);
+      };
+
+      const loadTechnicianData = async (id) => {
+        const { data: earnings } = await supabase.from('earnings').select('*').eq('technician_id', id);
+        const { data: logs } = await supabase.from('activity_logs').select('*').eq('user_id', id);
+
+        totalEarnings.textContent = `$${earnings.reduce((sum, e) => sum + (e.technician_earning || 0), 0).toFixed(2)}`;
+        jobsCompleted.textContent = earnings.length;
+        activityLogs.textContent = logs.length;
+
+        activityList.innerHTML = logs.map(l => `<li class="list-group-item">${l.action} — ${new Date(l.created_at).toLocaleString()}</li>`).join('');
+
+        const monthly = {};
+        earnings.forEach(e => {
+          const d = new Date(e.created_at);
+          const key = `${d.toLocaleString('default', { month: 'short' })} ${d.getFullYear()}`;
+          monthly[key] = (monthly[key] || 0) + e.technician_earning;
+        });
+
+        earningsChart.data = {
+          labels: Object.keys(monthly),
+          datasets: [{
+            label: 'Earnings',
+            data: Object.values(monthly),
+            backgroundColor: '#810000'
+          }]
+        };
+        earningsChart.update();
+      };
+
+      const loadRevenueData = async () => {
+        const { data: platform } = await supabase.from('platform_total_revenue').select('*');
+        const { data: company } = await supabase.from('referred_company_revenue').select('*');
+
+        const platformRevenue = document.getElementById('platformRevenue');
+        platformRevenue.textContent = `$${platform.reduce((sum, row) => sum + row.total_platform_earning, 0).toFixed(2)}`;
+
+        const companyMap = {};
+        company.forEach(c => {
+          if (!companySelect.innerHTML.includes(c.referred_company)) {
+            const option = document.createElement('option');
+            option.value = c.referred_company;
+            option.textContent = c.referred_company;
+            companySelect.appendChild(option);
+          }
+          const month = new Date(c.month).toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+          companyMap[c.referred_company + '|' + month] = (companyMap[c.referred_company + '|' + month] || 0) + c.total_revenue;
+        });
+
+        const companyRevenue = document.getElementById('companyRevenue');
+        const selectedCompany = companySelect.value;
+        const filtered = company.filter(c => selectedCompany === 'all' || c.referred_company === selectedCompany);
+        companyRevenue.textContent = `$${filtered.reduce((sum, c) => sum + c.total_revenue, 0).toFixed(2)}`;
+
+        const monthly = {};
+        filtered.forEach(c => {
+          const label = new Date(c.month).toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+          monthly[label] = (monthly[label] || 0) + c.total_revenue;
+        });
+
+        monthlyRevenueChart.data = {
+          labels: Object.keys(monthly),
+          datasets: [{ label: 'Monthly Revenue', data: Object.values(monthly), backgroundColor: '#005461' }]
+        };
+        monthlyRevenueChart.update();
+
+        revenuePieChart.data = {
+          labels: Object.keys(monthly),
+          datasets: [{ data: Object.values(monthly), backgroundColor: ['#810000', '#005461', '#F0F5F9'] }]
+        };
+        revenuePieChart.update();
+
+        document.getElementById('revenueTable').innerHTML = filtered.map(c => `
+          <tr><td>${c.referred_company}</td><td>${new Date(c.month).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}</td><td>$${c.total_revenue.toFixed(2)}</td></tr>
+        `).join('');
+      };
+
+      technicianSelect.addEventListener('change', e => loadTechnicianData(e.target.value));
+      companySelect.addEventListener('change', loadRevenueData);
+
+      await loadTechnicians();
+      await loadRevenueData();
+    });
+  </script>
+
+  @@include('./partials/customizer.html')
+  @@include('./partials/footer-scripts.html')
+</body>
+</html>
